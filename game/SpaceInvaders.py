@@ -22,6 +22,11 @@ class SpaceInvaders():
     NO_INVADERS = 1 # Nombre d'aliens  
     
     def __init__(self, display : bool = False):
+
+
+        #Rajout pour qagent (calcul de la direction deplacement enemi)
+        self.oldPos = 0
+
         # player
         self.display = display
         
@@ -82,11 +87,36 @@ class SpaceInvaders():
         return pygame.surfarray.array3d(self.screen)
 
     def get_state(self):
-        """ A COMPLETER AVEC VOTRE ETAT
-        Cette méthode doit renvoyer l'état du système comme vous aurez choisi de
-        le représenter. Vous pouvez utiliser les accesseurs ci-dessus pour cela. 
-        """
-        return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
+
+        retX = 0
+        retY = 0
+
+        temp = self.get_indavers_Y()
+
+        y = max(temp)
+        ind = temp.index(y)
+        retY = int(y / 50)
+
+        x = self.get_indavers_X()
+        retX = int(x[ind]/100)
+        
+        if self.oldPos - x[ind] > 0 : direction = -1
+        else: direction = 1
+
+        self.oldPos = x[ind]
+
+        if retX < 0:
+            retX = 1
+        elif retX > 800:
+            retX = 799
+
+        if retY < 0:
+            retY = 1
+        elif retY > 600:
+            retY = 599
+
+        return (retX, retY, direction)
+
 
     def reset(self):
         """Reset the game at the initial state.
@@ -177,6 +207,7 @@ class SpaceInvaders():
             # Collision
             collision = self.isCollision(self.bullet_X, self.invader_X[i], self.bullet_Y, self.invader_Y[i])
             if collision:
+                # reward = (1 * (1-self.invader_Y[i]) + 600 ) / 600
                 reward = 1
                 self.score_val += 1
                 self.bullet_Y = 600
@@ -197,6 +228,7 @@ class SpaceInvaders():
 
         if self.display:
             self.render()
+        
     
         return self.get_state(), reward, is_done
 
